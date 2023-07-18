@@ -179,7 +179,7 @@ describe("tally_down", () => {
   it("Is initialized!", async () => {
     const signer = (program.provider as anchor.AnchorProvider).wallet;
 
-    // Get
+    // Get Program Derived Address for signer & program.
     const [tallyDownPDA, _] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode("tally-down"),
@@ -188,6 +188,7 @@ describe("tally_down", () => {
       program.programId,
     );
 
+    // Initialize Program with PDA.
     const tx = await program.methods
       .initialize()
       .accounts({
@@ -197,6 +198,7 @@ describe("tally_down", () => {
       .rpc({ commitment: "confirmed" });
     console.log("Your transaction signature", tx);
 
+    // Convert old tokes and backfill them in the `tokes` Vector.
     const oldTokes = convertOldTokes();
     const backfillTx = await program.methods
       .backFillTokes(oldTokes)
@@ -212,8 +214,10 @@ describe("tally_down", () => {
     console.log(programStateBackfilled, lastTokeTimesBackfilled);
     console.log("Your transaction signature", backfillTx);
 
+    // Get last midnight to compare against in the program.
     const lastMidnight = getLastMidnightTime();
 
+    // Add a new Toke.
     const incTx = await program.methods
       .toke(new anchor.BN(lastMidnight))
       .accounts({ tokeSave: tallyDownPDA, tokeAccount: signer.publicKey })
@@ -224,6 +228,7 @@ describe("tally_down", () => {
     console.log(programState, lastTokeTimes);
     console.log("Your transaction signature", incTx);
 
+    // And add another one.
     const incTx2 = await program.methods
       .toke(new anchor.BN(lastMidnight))
       .accounts({ tokeSave: tallyDownPDA, tokeAccount: signer.publicKey })
@@ -234,6 +239,7 @@ describe("tally_down", () => {
     console.log(programState2, lastTokeTimes2);
     console.log("Your transaction signature", incTx2);
 
+    // Get all updates.
     const tokeAccounts = await program.account.tokeSave.all();
     const tokeTimes = tokeTimeToDate(programState.currentTokeTime);
     console.log(tallyDownPDA, tokeAccounts, tokeTimes);
