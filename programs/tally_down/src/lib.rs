@@ -73,6 +73,20 @@ pub mod tally_down {
 
         Ok(())
     }
+
+    pub fn back_fill_tokes(ctx: Context<IncrementTokeCount>, tokes: Vec<Tokes>) -> Result<()> {
+        let toke_save = &mut ctx.accounts.toke_save;
+
+        if !tokes.is_empty() {
+            toke_save.tokes = tokes.clone();
+            if let Some(last_toke) = tokes.last() {
+                toke_save.current_toke_time = last_toke.toke_date;
+                toke_save.current_toke_count = last_toke.toke_count;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
