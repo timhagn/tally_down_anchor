@@ -50,7 +50,7 @@ pub mod tally_down {
         Ok(())
     }
 
-    pub fn toke(ctx: Context<IncrementTokeCount>, last_midnight: i64) -> Result<()> {
+    pub fn toke(ctx: Context<TokeCounts>, last_midnight: i64) -> Result<()> {
         let toke_save = &mut ctx.accounts.toke_save;
         let current_toke_count = toke_save.current_toke_count;
         let current_toke_time = toke_save.current_toke_time;
@@ -74,7 +74,7 @@ pub mod tally_down {
         Ok(())
     }
 
-    pub fn back_fill_tokes(ctx: Context<IncrementTokeCount>, tokes: Vec<Tokes>) -> Result<()> {
+    pub fn back_fill_tokes(ctx: Context<TokeCounts>, tokes: Vec<Tokes>) -> Result<()> {
         let toke_save = &mut ctx.accounts.toke_save;
 
         if !tokes.is_empty() {
@@ -99,7 +99,7 @@ pub struct InitializeTokeCount<'info> {
 }
 
 #[derive(Accounts)]
-pub struct IncrementTokeCount<'info> {
+pub struct TokeCounts<'info> {
     #[account(mut)]
     pub toke_account: Signer<'info>,
     #[account(mut, seeds = [b"tally-down", toke_account.key().as_ref()], bump = toke_save.bump)]

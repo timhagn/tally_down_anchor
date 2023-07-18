@@ -150,6 +150,7 @@ const convertOldTokes = () => {
   const pastTokesResult = oldTokes.sort(
     (a, b) => Date.parse(a.id) - Date.parse(b.id),
   );
+  console.log(pastTokesResult);
   return pastTokesResult.map(({ id, numberOfTokes, lastTokeAt }) => {
     const tokeDate = Date.parse(`${id} ${lastTokeAt}`);
     return {
@@ -178,6 +179,7 @@ describe("tally_down", () => {
   it("Is initialized!", async () => {
     const signer = (program.provider as anchor.AnchorProvider).wallet;
 
+    // Get
     const [tallyDownPDA, _] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode("tally-down"),
