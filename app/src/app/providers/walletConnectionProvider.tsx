@@ -7,19 +7,18 @@ import {
   useWallet,
   WalletProvider,
 } from '@solana/wallet-adapter-react'
-import {
-  WalletDisconnectButton,
-  WalletModalProvider,
-} from '@solana/wallet-adapter-react-ui'
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 import { clusterApiUrl } from '@solana/web3.js'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
+import { UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets'
 
 const WalletMultiButtonDynamic = dynamic(
   async () =>
     (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
   { ssr: false },
 )
+
+const PROVIDER_URL = process.env.NEXT_PUBLIC_PROVIDER_URL as string
 
 interface WalletConnectionProviderProps extends PropsWithChildren {
   walletButtonWrapperClassName?: string

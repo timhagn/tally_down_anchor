@@ -1,12 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { addToDb } from '@/app/actions'
 import Tallies from '@/app/components/tallies'
 import { handrawn } from '@/lib/fonts'
 import { WhatTheSmileyThinks } from '@/app/components/whatTheSmileyThinks'
 import LastToke from '@/app/components/lastToke'
 import { getUTCTimeString } from '@/lib/timeUtils'
+import {
+  AnchorWallet,
+  useAnchorWallet,
+  useConnection,
+} from '@solana/wallet-adapter-react'
+import { useTallyDownProgram } from '@/app/providers/tallyDownProgramProvider'
 
 export default function UpdateTallieTokes({
   numberOfTokes,
@@ -17,15 +23,26 @@ export default function UpdateTallieTokes({
   lastTokeAt?: string
   pastNumberOfTokes: number
 }) {
+  const { sendToke } = useTallyDownProgram()
   const [currentNumberOfTokes, setCurrentNumberOfTokes] =
     useState(numberOfTokes)
   const [currentLastTokeAt, setCurrentLastTokeAt] = useState(lastTokeAt)
+  const { getProgramState } = useTallyDownProgram()
 
-  const onToke = () => {
+  const onToke = async () => {
+    await sendToke()
     setCurrentNumberOfTokes((prev) => prev + 1)
     const utcTimeString = getUTCTimeString()
     setCurrentLastTokeAt(utcTimeString)
   }
+
+  useEffect(() => {
+    const runtest = async () => {
+      const testState = await getProgramState()
+      console.log(testState)
+    }
+    runtest()
+  }, [getProgramState])
 
   return (
     <div className="text-center">
@@ -38,7 +55,7 @@ export default function UpdateTallieTokes({
       ) : (
         <div className={`text-[42px]`}>(Don&apos;t) start to puff ; )</div>
       )}
-      <form action={addToDb} onSubmit={onToke}>
+      <form onSubmit={onToke}>
         <button type="submit" className="btn btn-blue mt-3">
           Puffed one
         </button>

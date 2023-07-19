@@ -11,6 +11,7 @@ export default function PastTokes({
   if (!pastTokesResult.length) {
     return null
   }
+
   return (
     <div className="mt-10 pt-8 border-t border-gray-500 w-full">
       <h2 className="text-lg font-bold underline mb-2">
