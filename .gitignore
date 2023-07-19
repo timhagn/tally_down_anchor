@@ -6,3 +6,26 @@ target
 node_modules
 test-ledger
 .yarn
+
+.env
+.next
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Databases
+tallyDown.db
+tallyDown.dev.db
+
+!app/target
