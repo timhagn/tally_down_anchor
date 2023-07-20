@@ -1,8 +1,8 @@
-import { BN, Program } from '@coral-xyz/anchor'
+import { Program } from '@coral-xyz/anchor'
 import { PublicKey } from '@solana/web3.js'
 import * as anchor from '@coral-xyz/anchor'
-import { getLastMidnightTime } from '@/lib/timeUtils'
-import { TokeSave } from '@/app/providers/tallyDownProgramProvider'
+import { getLastMidnightTime, tokeTimeToDate } from '@/lib/timeUtils'
+import { Tokes, TokeSave } from '@/app/providers/tallyDownProgramProvider'
 
 export const getTallyDownProgramState = async (
   program: Program,
@@ -71,6 +71,22 @@ export const sendTokeTransaction = async (
     // Add a new Toke.
     return await program.methods
       .toke(new anchor.BN(lastMidnight))
+      .accounts({ tokeSave: tallyDownPDA, tokeAccount: signerPublicKey })
+      .rpc({ commitment: 'confirmed' })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const sendBackfillTokesTransaction = async (
+  program: Program,
+  tallyDownPDA: PublicKey,
+  signerPublicKey: PublicKey,
+  oldTokes: Tokes[],
+) => {
+  try {
+    return await program.methods
+      .backFillTokes(oldTokes)
       .accounts({ tokeSave: tallyDownPDA, tokeAccount: signerPublicKey })
       .rpc({ commitment: 'confirmed' })
   } catch (error) {

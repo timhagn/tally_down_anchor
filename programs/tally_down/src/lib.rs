@@ -74,6 +74,17 @@ pub mod tally_down {
         Ok(())
     }
 
+    pub fn reset_day(ctx: Context<TokeCounts>) -> Result<()> {
+        let toke_save = &mut ctx.accounts.toke_save;
+
+        let clock: Clock = Clock::get().unwrap();
+
+        toke_save.current_toke_count = 0;
+        toke_save.current_toke_time = clock.unix_timestamp;
+
+        Ok(())
+    }
+
     pub fn back_fill_tokes(ctx: Context<TokeCounts>, tokes: Vec<Tokes>) -> Result<()> {
         let toke_save = &mut ctx.accounts.toke_save;
 

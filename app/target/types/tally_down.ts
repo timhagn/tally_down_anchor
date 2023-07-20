@@ -45,6 +45,22 @@ export type TallyDown = {
       ]
     },
     {
+      "name": "resetDay",
+      "accounts": [
+        {
+          "name": "tokeAccount",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokeSave",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "backFillTokes",
       "accounts": [
         {
@@ -169,6 +185,22 @@ export const IDL: TallyDown = {
           "type": "i64"
         }
       ]
+    },
+    {
+      "name": "resetDay",
+      "accounts": [
+        {
+          "name": "tokeAccount",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokeSave",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "backFillTokes",

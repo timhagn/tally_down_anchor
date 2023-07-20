@@ -45,6 +45,22 @@
       ]
     },
     {
+      "name": "resetDay",
+      "accounts": [
+        {
+          "name": "tokeAccount",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokeSave",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "backFillTokes",
       "accounts": [
         {

@@ -20,6 +20,16 @@ export const getUTCTimeString = (tokeTime: BN) => {
   return `${utcHours}:${utcMinutes}:${utcSeconds}`
 }
 
+export const getUTCDateString = (tokeTime: BN) => {
+  const currentDateTime = tokeTimeToDate(tokeTime)
+  const dateParts = new Intl.DateTimeFormat('en-US', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).formatToParts(currentDateTime)
+  return `${dateParts[4].value}-${dateParts[0].value}-${dateParts[2].value}`
+}
+
 export const tokeTimeToDates = (tokeTime: BN[]) => tokeTime.map(tokeTimeToDate)
 
 export const getLastMidnightTime = () => {

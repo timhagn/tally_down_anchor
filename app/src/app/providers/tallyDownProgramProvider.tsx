@@ -5,7 +5,6 @@ import {
   createContext,
   FC,
   PropsWithChildren,
-  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -23,9 +22,9 @@ import { PublicKey } from '@solana/web3.js'
 import { getPDASync, getProgram } from '@/lib/web3Helpers'
 import {
   getTallyDownProgramStateOrInit,
+  sendBackfillTokesTransaction,
   sendTokeTransaction,
 } from '@/lib/tallyTokeUtils'
-import { TallyDown } from '../../../target/types/tally_down'
 
 export interface Tokes {
   tokeDate: BN
@@ -45,6 +44,7 @@ interface TallyDownProgramContextProps {
   tallyDownPDA: PublicKey | null
   getProgramState: () => any | null
   sendToke: () => any | null
+  backfillTokes: (oldTokes: Tokes[]) => any | null
   initialProgramState?: TokeSave
 }
 
@@ -53,6 +53,7 @@ const TallyDownProgramContextDefaultValues: TallyDownProgramContextProps = {
   tallyDownPDA: null,
   getProgramState: () => {},
   sendToke: () => {},
+  backfillTokes: (oldTokes) => {},
 }
 
 export const TallyDownProgramContext: Context<TallyDownProgramContextProps> =
@@ -101,6 +102,24 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
     return null
   }, [getProgramState, program, publicKey, tallyDownPDA])
 
+  const backfillTokes = useCallback(
+    async (oldTokes: Tokes[]) => {
+      if (program !== null && tallyDownPDA && publicKey) {
+        const tx = await sendBackfillTokesTransaction(
+          program,
+          tallyDownPDA,
+          publicKey,
+          oldTokes,
+        )
+        if (tx) {
+          return await getProgramState()
+        }
+      }
+      return null
+    },
+    [getProgramState, program, publicKey, tallyDownPDA],
+  )
+
   useEffect(() => {
     const getInitialState = async () => {
       if (
@@ -125,8 +144,16 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
       getProgramState,
       sendToke,
       initialProgramState,
+      backfillTokes,
     }),
-    [getProgramState, program, tallyDownPDA, sendToke, initialProgramState],
+    [
+      getProgramState,
+      program,
+      tallyDownPDA,
+      sendToke,
+      initialProgramState,
+      backfillTokes,
+    ],
   )
 
   return (
