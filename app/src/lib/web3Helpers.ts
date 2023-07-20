@@ -1,5 +1,10 @@
 import { AnchorWallet } from '@solana/wallet-adapter-react'
-import { ConfirmOptions, Connection, PublicKey } from '@solana/web3.js'
+import {
+  ConfirmOptions,
+  Connection,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from '@solana/web3.js'
 import { Program, AnchorProvider, Idl, utils } from '@coral-xyz/anchor'
 import idl from '../../../target/idl/tally_down.json'
 
@@ -20,4 +25,12 @@ export const getPDASync = (publicKey: PublicKey) => {
     programID,
   )
   return tallyDownPDA
+}
+
+export const getBalanceInWallet = async (
+  connection: Connection,
+  publicKey: PublicKey,
+) => {
+  const balance = await connection.getBalance(publicKey)
+  return balance / LAMPORTS_PER_SOL
 }

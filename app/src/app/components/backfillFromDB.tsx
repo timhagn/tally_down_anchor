@@ -7,6 +7,8 @@ import {
   useTallyDownProgram,
 } from '@/app/providers/tallyDownProgramProvider'
 import { WhatTheSmileyThinks } from '@/app/components/whatTheSmileyThinks'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { getBalanceInWallet } from '@/lib/web3Helpers'
 
 export default function BackfillFromDB({
   pastTokesResult,
@@ -14,7 +16,10 @@ export default function BackfillFromDB({
   pastTokesResult: TallyTokes[]
 }) {
   const { backfillTokes, sendResetDay } = useTallyDownProgram()
+  const { connection } = useConnection()
+  const { publicKey } = useWallet()
   const [programState, setProgramState] = useState<TokeSave>()
+  const [walletBalance, setWalletBalance] = useState<number>()
   const pastNumberOfTokes = getPastNumberOfTokes(pastTokesResult)
 
   const onBackfillClick = useCallback(async () => {
@@ -31,6 +36,13 @@ export default function BackfillFromDB({
       setProgramState(currentProgramState)
     }
   }, [sendResetDay])
+
+  const onGetBalanceClick = useCallback(async () => {
+    if (connection && publicKey) {
+      const balance = await getBalanceInWallet(connection, publicKey)
+      setWalletBalance(balance)
+    }
+  }, [])
 
   return (
     <>
@@ -52,6 +64,14 @@ export default function BackfillFromDB({
       >
         Reset Day
       </button>
+      <button
+        type="submit"
+        className="btn mt-4 text-sm"
+        onClick={onGetBalanceClick}
+      >
+        Get Balance of Wallet
+      </button>
+      {walletBalance && <p className="text-sm mt-4">{walletBalance} SOL</p>}
       {programState?.tokes?.length && (
         <>
           <h2 className="font-bold my-6">
