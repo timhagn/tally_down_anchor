@@ -9,16 +9,16 @@ export const convertUTCTimeToLocal = (timeToConvert: string) => {
   return currentDateTime
 }
 
-export const getUTCTimeString = () => {
-  const currentDateTime = new Date()
+export const tokeTimeToDate = (tokeTime: BN) =>
+  new Date(tokeTime.toNumber() * 1000)
+
+export const getUTCTimeString = (tokeTime: BN) => {
+  const currentDateTime = tokeTimeToDate(tokeTime)
   const utcHours = currentDateTime.getUTCHours()
   const utcMinutes = currentDateTime.getUTCMinutes()
   const utcSeconds = currentDateTime.getUTCSeconds()
   return `${utcHours}:${utcMinutes}:${utcSeconds}`
 }
-
-export const tokeTimeToDate = (tokeTime: BN) =>
-  new Date(tokeTime.toNumber() * 1000)
 
 export const tokeTimeToDates = (tokeTime: BN[]) => tokeTime.map(tokeTimeToDate)
 

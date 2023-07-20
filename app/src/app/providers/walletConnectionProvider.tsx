@@ -43,24 +43,14 @@ const WalletConnectionProvider: FC<WalletConnectionProviderProps> = ({
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <WalletConnectedSwitch>
-            <div className={walletButtonWrapperClassName}>
-              <WalletMultiButtonDynamic />
-            </div>
-            {children}
-          </WalletConnectedSwitch>
+          <div className={walletButtonWrapperClassName}>
+            <WalletMultiButtonDynamic />
+          </div>
+          {children}
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   )
-}
-
-export function WalletConnectedSwitch({ children }: PropsWithChildren) {
-  const { connected } = useWallet()
-  if (!connected) {
-    return <WalletMultiButtonDynamic />
-  }
-  return <>{children}</>
 }
 
 export default WalletConnectionProvider

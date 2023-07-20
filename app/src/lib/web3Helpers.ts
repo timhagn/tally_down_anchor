@@ -9,12 +9,9 @@ const opts: ConfirmOptions = {
 const programID = new PublicKey(idl.metadata.address)
 
 export const getProgram = (connection: Connection, wallet: AnchorWallet) => {
-  if (connection && wallet) {
-    const provider = new AnchorProvider(connection, wallet, opts)
-    const program = new Program(idl as Idl, programID, provider)
-    return program
-  }
-  return null
+  const provider = new AnchorProvider(connection, wallet, opts)
+  const program = new Program(idl as Idl, programID, provider)
+  return program
 }
 
 export const getPDASync = (publicKey: PublicKey) => {

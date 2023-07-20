@@ -5,6 +5,7 @@ import {
   createContext,
   FC,
   PropsWithChildren,
+  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -17,19 +18,34 @@ import {
   useConnection,
   useWallet,
 } from '@solana/wallet-adapter-react'
-import { Program } from '@coral-xyz/anchor'
+import { BN, Program } from '@coral-xyz/anchor'
 import { PublicKey } from '@solana/web3.js'
 import { getPDASync, getProgram } from '@/lib/web3Helpers'
 import {
   getTallyDownProgramStateOrInit,
   sendTokeTransaction,
 } from '@/lib/tallyTokeUtils'
+import { TallyDown } from '../../../target/types/tally_down'
+
+export interface Tokes {
+  tokeDate: BN
+  tokeCount: number
+}
+
+export interface TokeSave {
+  tokeAccount: PublicKey
+  currentTokeTime: BN
+  currentTokeCount: number
+  tokes: Tokes[]
+  bump: number
+}
 
 interface TallyDownProgramContextProps {
   program: Program | null
   tallyDownPDA: PublicKey | null
   getProgramState: () => any | null
   sendToke: () => any | null
+  initialProgramState?: TokeSave
 }
 
 const TallyDownProgramContextDefaultValues: TallyDownProgramContextProps = {
@@ -46,14 +62,14 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
   const { connection } = useConnection()
-  const { publicKey, connected, sendTransaction } = useWallet()
+  const { publicKey } = useWallet()
   const wallet = useAnchorWallet() as AnchorWallet
   const [program, setProgram] = useState<Program | null>(null)
   const [tallyDownPDA, setTallyDownPDA] = useState<PublicKey | null>(null)
-  const [initialized, setInitialized] = useState(false)
+  const [initialProgramState, setInitialProgramState] = useState<TokeSave>()
 
   useEffect(() => {
-    if (connected && publicKey && !program) {
+    if (publicKey !== null && program === null) {
       const anchorProgram = getProgram(connection, wallet)
       const possibleTallyDownPDA = getPDASync(publicKey)
       if (anchorProgram && possibleTallyDownPDA) {
@@ -61,30 +77,46 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
         setTallyDownPDA(possibleTallyDownPDA)
       }
     }
-  }, [connected, connection, program, publicKey, wallet])
+  }, [connection, program, publicKey, wallet])
 
   const getProgramState = useCallback(async () => {
-    if (program && tallyDownPDA && publicKey) {
+    if (program !== null && tallyDownPDA && publicKey) {
       const programState = await getTallyDownProgramStateOrInit(
         program,
         tallyDownPDA,
         publicKey,
       )
-      // if (programState === true) {
-      //   setInitialized(true)
-      //   return null
-      // }
       return programState
     }
     return null
   }, [program, publicKey, tallyDownPDA])
 
   const sendToke = useCallback(async () => {
-    if (program && tallyDownPDA && publicKey && initialized) {
-      return await sendTokeTransaction(program, tallyDownPDA, publicKey)
+    if (program !== null && tallyDownPDA && publicKey) {
+      const tx = await sendTokeTransaction(program, tallyDownPDA, publicKey)
+      if (tx) {
+        return await getProgramState()
+      }
     }
     return null
-  }, [initialized, program, publicKey, tallyDownPDA])
+  }, [getProgramState, program, publicKey, tallyDownPDA])
+
+  useEffect(() => {
+    const getInitialState = async () => {
+      if (
+        program !== null &&
+        tallyDownPDA &&
+        publicKey &&
+        !initialProgramState
+      ) {
+        const programState = await getProgramState()
+        if (programState) {
+          setInitialProgramState(programState)
+        }
+      }
+    }
+    getInitialState()
+  }, [program, tallyDownPDA, publicKey, initialProgramState, getProgramState])
 
   const value = useMemo(
     () => ({
@@ -92,8 +124,9 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
       tallyDownPDA,
       getProgramState,
       sendToke,
+      initialProgramState,
     }),
-    [getProgramState, program, tallyDownPDA, sendToke],
+    [getProgramState, program, tallyDownPDA, sendToke, initialProgramState],
   )
 
   return (

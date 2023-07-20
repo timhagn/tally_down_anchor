@@ -24,25 +24,19 @@ export default function UpdateTallieTokes({
   pastNumberOfTokes: number
 }) {
   const { sendToke } = useTallyDownProgram()
-  const [currentNumberOfTokes, setCurrentNumberOfTokes] =
-    useState(numberOfTokes)
-  const [currentLastTokeAt, setCurrentLastTokeAt] = useState(lastTokeAt)
-  const { getProgramState } = useTallyDownProgram()
+  const [currentNumberOfTokes, setCurrentNumberOfTokes] = useState(
+    () => numberOfTokes,
+  )
+  const [currentLastTokeAt, setCurrentLastTokeAt] = useState(() => lastTokeAt)
 
   const onToke = async () => {
-    await sendToke()
-    setCurrentNumberOfTokes((prev) => prev + 1)
-    const utcTimeString = getUTCTimeString()
-    setCurrentLastTokeAt(utcTimeString)
-  }
-
-  useEffect(() => {
-    const runtest = async () => {
-      const testState = await getProgramState()
-      console.log(testState)
+    const programState = await sendToke()
+    if (programState) {
+      setCurrentNumberOfTokes(programState.currentTokeCount)
+      const utcTimeString = getUTCTimeString(programState.currentTokeTime)
+      setCurrentLastTokeAt(utcTimeString)
     }
-    runtest()
-  }, [getProgramState])
+  }
 
   return (
     <div className="text-center">
@@ -55,11 +49,9 @@ export default function UpdateTallieTokes({
       ) : (
         <div className={`text-[42px]`}>(Don&apos;t) start to puff ; )</div>
       )}
-      <form onSubmit={onToke}>
-        <button type="submit" className="btn btn-blue mt-3">
-          Puffed one
-        </button>
-      </form>
+      <button type="submit" className="btn btn-blue mt-3" onClick={onToke}>
+        Puffed one
+      </button>
       <LastToke lastTokeAt={currentLastTokeAt} />
       <WhatTheSmileyThinks
         numberOfTokes={currentNumberOfTokes}
