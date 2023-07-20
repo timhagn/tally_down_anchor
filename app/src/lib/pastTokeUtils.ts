@@ -4,15 +4,14 @@ import { TallyTokes } from '@/lib/sqliteDb'
 import { BN } from '@coral-xyz/anchor'
 
 export const processPastTokes = (tokes: Tokes[]) =>
-  tokes
-    .map(
-      ({ tokeDate, tokeCount }): TallyTokes => ({
-        id: getUTCDateString(tokeDate),
-        numberOfTokes: tokeCount,
-        lastTokeAt: getUTCTimeString(tokeDate),
-      }),
-    )
-    .sort((a: TallyTokes, b: TallyTokes) => Date.parse(a.id) - Date.parse(b.id))
+  tokes.map(
+    ({ tokeDate, tokeCount }): TallyTokes => ({
+      id: getUTCDateString(tokeDate),
+      numberOfTokes: tokeCount,
+      lastTokeAt: getUTCTimeString(tokeDate),
+    }),
+  )
+// .sort((a: TallyTokes, b: TallyTokes) => Date.parse(a.id) - Date.parse(b.id))
 
 export const getPastNumberOfTokes = (pastTokesResult: TallyTokes[]) =>
   pastTokesResult[pastTokesResult.length - 1]?.numberOfTokes || 0
