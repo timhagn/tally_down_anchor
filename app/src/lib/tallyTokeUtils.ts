@@ -78,6 +78,22 @@ export const sendTokeTransaction = async (
   }
 }
 
+export const sendResetDayTransaction = async (
+  program: Program,
+  tallyDownPDA: PublicKey,
+  signerPublicKey: PublicKey,
+) => {
+  try {
+    // Reset Day.
+    return await program.methods
+      .resetDay()
+      .accounts({ tokeSave: tallyDownPDA, tokeAccount: signerPublicKey })
+      .rpc({ commitment: 'confirmed' })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const sendBackfillTokesTransaction = async (
   program: Program,
   tallyDownPDA: PublicKey,

@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN, Program } from "@coral-xyz/anchor";
 import { TallyDown } from "../target/types/tally_down";
-import { assert } from "chai";
+import { assert, expect } from "chai";
 
 const oldTokes = [
   {
@@ -214,6 +214,19 @@ describe("tally_down", () => {
     console.log(programStateBackfilled, lastTokeTimesBackfilled);
     console.log("Your transaction signature", backfillTx);
 
+    // Reset Day.
+    const incTx3 = await program.methods
+      .resetDay()
+      .accounts({ tokeSave: tallyDownPDA, tokeAccount: signer.publicKey })
+      .rpc({ commitment: "confirmed" });
+
+    const programState3 = await program.account.tokeSave.fetch(tallyDownPDA);
+    const lastTokeTimes3 = tokeTimeToDate(programState3.currentTokeTime);
+    console.log(programState3, lastTokeTimes3);
+    console.log("Your transaction signature", incTx3);
+
+    expect(programState3.currentTokeCount).to.equal(0);
+
     // Get last midnight to compare against in the program.
     const lastMidnight = getLastMidnightTime();
 
@@ -228,6 +241,8 @@ describe("tally_down", () => {
     console.log(programState, lastTokeTimes);
     console.log("Your transaction signature", incTx);
 
+    expect(programState.currentTokeCount).to.equal(1);
+
     // And add another one.
     const incTx2 = await program.methods
       .toke(new anchor.BN(lastMidnight))
@@ -238,6 +253,21 @@ describe("tally_down", () => {
     const lastTokeTimes2 = tokeTimeToDate(programState.currentTokeTime);
     console.log(programState2, lastTokeTimes2);
     console.log("Your transaction signature", incTx2);
+
+    expect(programState2.currentTokeCount).to.equal(2);
+
+    // Reset Day.
+    const incTx4 = await program.methods
+      .resetDay()
+      .accounts({ tokeSave: tallyDownPDA, tokeAccount: signer.publicKey })
+      .rpc({ commitment: "confirmed" });
+
+    const programState4 = await program.account.tokeSave.fetch(tallyDownPDA);
+    const lastTokeTimes4 = tokeTimeToDate(programState4.currentTokeTime);
+    console.log(programState4, lastTokeTimes4);
+    console.log("Your transaction signature", incTx4);
+
+    expect(programState4.currentTokeCount).to.equal(0);
 
     // Get all updates.
     const tokeAccounts = await program.account.tokeSave.all();

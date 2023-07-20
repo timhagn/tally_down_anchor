@@ -13,7 +13,7 @@ export default function BackfillFromDB({
 }: {
   pastTokesResult: TallyTokes[]
 }) {
-  const { backfillTokes } = useTallyDownProgram()
+  const { backfillTokes, sendResetDay } = useTallyDownProgram()
   const [programState, setProgramState] = useState<TokeSave>()
   const pastNumberOfTokes = getPastNumberOfTokes(pastTokesResult)
 
@@ -24,6 +24,13 @@ export default function BackfillFromDB({
       setProgramState(currentProgramState)
     }
   }, [backfillTokes, pastTokesResult])
+
+  const onResetDayClick = useCallback(async () => {
+    const currentProgramState = await sendResetDay()
+    if (currentProgramState) {
+      setProgramState(currentProgramState)
+    }
+  }, [sendResetDay])
 
   return (
     <>
@@ -37,10 +44,30 @@ export default function BackfillFromDB({
       >
         Backfill
       </button>
+      <p className="mt-4">or</p>
+      <button
+        type="submit"
+        className="btn btn-blue mt-4"
+        onClick={onResetDayClick}
+      >
+        Reset Day
+      </button>
       {programState?.tokes?.length && (
         <>
           <h2 className="font-bold my-6">
             Success! Backfilled {programState.tokes.length} days of tokes!
+          </h2>
+          <WhatTheSmileyThinks
+            numberOfTokes={0}
+            pastNumberOfTokes={100}
+            className="text-3xl text-center"
+          />
+        </>
+      )}
+      {programState?.currentTokeCount === 0 && (
+        <>
+          <h2 className="font-bold my-6">
+            Success! Reset the days toke count!
           </h2>
           <WhatTheSmileyThinks
             numberOfTokes={0}

@@ -23,6 +23,7 @@ import { getPDASync, getProgram } from '@/lib/web3Helpers'
 import {
   getTallyDownProgramStateOrInit,
   sendBackfillTokesTransaction,
+  sendResetDayTransaction,
   sendTokeTransaction,
 } from '@/lib/tallyTokeUtils'
 
@@ -44,6 +45,7 @@ interface TallyDownProgramContextProps {
   tallyDownPDA: PublicKey | null
   getProgramState: () => any | null
   sendToke: () => any | null
+  sendResetDay: () => any | null
   backfillTokes: (oldTokes: Tokes[]) => any | null
   initialProgramState?: TokeSave
 }
@@ -53,6 +55,7 @@ const TallyDownProgramContextDefaultValues: TallyDownProgramContextProps = {
   tallyDownPDA: null,
   getProgramState: () => {},
   sendToke: () => {},
+  sendResetDay: () => {},
   backfillTokes: (oldTokes) => {},
 }
 
@@ -95,6 +98,16 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
   const sendToke = useCallback(async () => {
     if (program !== null && tallyDownPDA && publicKey) {
       const tx = await sendTokeTransaction(program, tallyDownPDA, publicKey)
+      if (tx) {
+        return await getProgramState()
+      }
+    }
+    return null
+  }, [getProgramState, program, publicKey, tallyDownPDA])
+
+  const sendResetDay = useCallback(async () => {
+    if (program !== null && tallyDownPDA && publicKey) {
+      const tx = await sendResetDayTransaction(program, tallyDownPDA, publicKey)
       if (tx) {
         return await getProgramState()
       }
@@ -145,6 +158,7 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
       sendToke,
       initialProgramState,
       backfillTokes,
+      sendResetDay,
     }),
     [
       getProgramState,
@@ -153,6 +167,7 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
       sendToke,
       initialProgramState,
       backfillTokes,
+      sendResetDay,
     ],
   )
 
