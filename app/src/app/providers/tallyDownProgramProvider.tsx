@@ -122,7 +122,14 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
       }
       return null
     },
-    [getProgramState, program, publicKey, tallyDownPDA],
+    [
+      connection,
+      getProgramState,
+      program,
+      publicKey,
+      sendTransaction,
+      tallyDownPDA,
+    ],
   )
 
   useEffect(() => {

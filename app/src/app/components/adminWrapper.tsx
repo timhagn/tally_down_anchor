@@ -13,13 +13,16 @@ export default function AdminWrapper({
   todayPuffs: TallyTokes
   pastTokesResult: TallyTokes[]
 }) {
+  const pastTokesResultSorted = pastTokesResult.sort(
+    (a: TallyTokes, b: TallyTokes) => Date.parse(a.id) - Date.parse(b.id),
+  )
   return (
     <WalletConnectionProvider walletButtonWrapperClassName="mt-3">
       <TallyDownProgramProvider>
         <main className="flex flex-col items-center justify-center p-8 md:p-24">
           <AdminDashboard
             todayPuffs={todayPuffs}
-            pastTokesResult={pastTokesResult}
+            pastTokesResult={pastTokesResultSorted}
           />
         </main>
       </TallyDownProgramProvider>

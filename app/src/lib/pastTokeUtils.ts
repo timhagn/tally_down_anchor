@@ -17,7 +17,8 @@ export const getPastNumberOfTokes = (pastTokesResult: TallyTokes[]) =>
   pastTokesResult[pastTokesResult.length - 1]?.numberOfTokes || 0
 
 export const convertOldTokes = (oldTokes: TallyTokes[]): Tokes[] => {
-  const pastTokesResult = oldTokes.sort(
+  const oldTokesCopy = [...oldTokes]
+  const pastTokesResult = oldTokesCopy.sort(
     (a, b) => Date.parse(a.id) - Date.parse(b.id),
   )
   return pastTokesResult.map(({ id, numberOfTokes, lastTokeAt }) => {

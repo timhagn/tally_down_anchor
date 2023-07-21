@@ -21,7 +21,6 @@ export default function AdminDashboard({
   const { publicKey } = useWallet()
   const [programState, setProgramState] = useState<TokeSave>()
   const [walletBalance, setWalletBalance] = useState<number>()
-  const pastNumberOfTokes = getPastNumberOfTokes(pastTokesResult)
 
   const onBackfillClick = useCallback(async () => {
     const oldTokes = convertOldTokes(pastTokesResult)
@@ -44,12 +43,12 @@ export default function AdminDashboard({
       const balance = await getBalanceInWallet(connection, publicKey)
       setWalletBalance(balance)
     }
-  }, [])
+  }, [connection, publicKey])
 
   return (
     <>
       <h1 className="text-2xl font-bold text-center">
-        Click Backfill to import tokes of {pastNumberOfTokes} days from DB
+        Click Backfill to import tokes of {pastTokesResult.length} days from DB
       </h1>
       <button
         type="submit"

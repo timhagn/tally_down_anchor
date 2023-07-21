@@ -5,8 +5,6 @@ import PastTokes from '@/app/components/pastTokes'
 
 import React, { useMemo } from 'react'
 import { useTallyDownProgram } from '@/app/providers/tallyDownProgramProvider'
-import { getUTCTimeString } from '@/lib/timeUtils'
-import { getPastNumberOfTokes, processPastTokes } from '@/lib/pastTokeUtils'
 import { useWallet } from '@solana/wallet-adapter-react'
 import Spinner from '@/app/components/spinner'
 import { processInitialProgramState } from '@/lib/tallyTokeUtils'

@@ -13,11 +13,12 @@ export const calculateMedian = (pastTokes: TallyTokes[]): number => {
   if (!pastTokes.length) {
     return 0
   }
-  const pastTokeCountsSorted = pastTokes.sort(
-    (a: TallyTokes, b: TallyTokes) => a.numberOfTokes - b.numberOfTokes
+  const pastTokesCopy = [...pastTokes]
+  const pastTokeCountsSorted = pastTokesCopy.sort(
+    (a: TallyTokes, b: TallyTokes) => a.numberOfTokes - b.numberOfTokes,
   )
   const tokeCounts = pastTokeCountsSorted.map(
-    ({ numberOfTokes }) => numberOfTokes
+    ({ numberOfTokes }) => numberOfTokes,
   )
   const middleToke = tokeCounts.length / 2
   if (middleToke % 2 !== 0) {
