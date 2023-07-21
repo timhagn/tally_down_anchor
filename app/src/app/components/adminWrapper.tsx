@@ -4,18 +4,23 @@ import React from 'react'
 import WalletConnectionProvider from '@/app/providers/walletConnectionProvider'
 import { TallyDownProgramProvider } from '@/app/providers/tallyDownProgramProvider'
 import { TallyTokes } from '@/lib/sqliteDb'
-import BackfillFromDB from '@/app/components/backfillFromDB'
+import AdminDashboard from '@/app/components/adminDashboard'
 
-export default function BackfillWrapper({
+export default function AdminWrapper({
+  todayPuffs,
   pastTokesResult,
 }: {
+  todayPuffs: TallyTokes
   pastTokesResult: TallyTokes[]
 }) {
   return (
     <WalletConnectionProvider walletButtonWrapperClassName="mt-3">
       <TallyDownProgramProvider>
         <main className="flex flex-col items-center justify-center p-8 md:p-24">
-          <BackfillFromDB pastTokesResult={pastTokesResult} />
+          <AdminDashboard
+            todayPuffs={todayPuffs}
+            pastTokesResult={pastTokesResult}
+          />
         </main>
       </TallyDownProgramProvider>
     </WalletConnectionProvider>

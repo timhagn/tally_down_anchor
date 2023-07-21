@@ -7,10 +7,13 @@ import { WhatTheSmileyThinks } from '@/app/components/whatTheSmileyThinks'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { getBalanceInWallet } from '@/lib/web3Helpers'
 import { TokeSave } from '@/app/types/tallyDown'
+import { processOldTodayPuffs } from '@/lib/tallyTokeUtils'
 
-export default function BackfillFromDB({
+export default function AdminDashboard({
+  todayPuffs,
   pastTokesResult,
 }: {
+  todayPuffs: TallyTokes
   pastTokesResult: TallyTokes[]
 }) {
   const { backfillTokes, sendResetDay } = useTallyDownProgram()
@@ -22,11 +25,12 @@ export default function BackfillFromDB({
 
   const onBackfillClick = useCallback(async () => {
     const oldTokes = convertOldTokes(pastTokesResult)
-    const currentProgramState = await backfillTokes(oldTokes)
+    const oldTodayPuffs = processOldTodayPuffs(todayPuffs)
+    const currentProgramState = await backfillTokes(oldTodayPuffs, oldTokes)
     if (currentProgramState) {
       setProgramState(currentProgramState)
     }
-  }, [backfillTokes, pastTokesResult])
+  }, [backfillTokes, pastTokesResult, todayPuffs])
 
   const onResetDayClick = useCallback(async () => {
     const currentProgramState = await sendResetDay()

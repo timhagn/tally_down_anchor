@@ -59,14 +59,14 @@ pub mod tally_down {
 
         // Was the last toke before midnight?
         // Then add it to the tokes Vector & reset current_toke_time.
-        // TODO: add check for already present day, or add an extra boolean to forego the addition...
         if current_toke_time != 0 && current_toke_time < last_midnight {
             let next_toke_saved = Tokes {
                 toke_date: current_toke_time,
                 toke_count: current_toke_count,
             };
             toke_save.tokes.push(next_toke_saved);
-            toke_save.current_toke_count = 1;
+            toke_save.current_toke_count = 0;
+            toke_save.current_toke_time = 0;
         } else {
             toke_save.current_toke_count += 1;
         }
@@ -82,6 +82,14 @@ pub mod tally_down {
 
         toke_save.current_toke_count = 0;
         toke_save.current_toke_time = clock.unix_timestamp;
+
+        Ok(())
+    }
+
+    pub fn set_toke_count(ctx: Context<TokeCounts>, toke_count: i8, toke_time: i64) -> Result<()> {
+        let toke_save = &mut ctx.accounts.toke_save;
+        toke_save.current_toke_count = toke_count;
+        toke_save.current_toke_time = toke_time;
 
         Ok(())
     }

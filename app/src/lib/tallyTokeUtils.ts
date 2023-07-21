@@ -1,13 +1,22 @@
 import { BN, Program } from '@coral-xyz/anchor'
-import { PublicKey } from '@solana/web3.js'
+import {
+  Connection,
+  PublicKey,
+  TransactionMessage,
+  TransactionSignature,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import * as anchor from '@coral-xyz/anchor'
 import {
+  convertDateAndTime,
   getLastMidnightTime,
   getUTCDateString,
   getUTCTimeString,
 } from '@/lib/timeUtils'
 import { Tokes, TokeSave } from '@/app/types/tallyDown'
 import { getPastNumberOfTokes, processPastTokes } from '@/lib/pastTokeUtils'
+import { TallyTokes } from '@/lib/sqliteDb'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 
 export const getTallyDownProgramState = async (
   program: Program,
@@ -99,17 +108,60 @@ export const sendResetDayTransaction = async (
   }
 }
 
-export const sendBackfillTokesTransaction = async (
-  program: Program,
-  tallyDownPDA: PublicKey,
-  signerPublicKey: PublicKey,
-  oldTokes: Tokes[],
-) => {
+export const processOldTodayPuffs = ({
+  id,
+  numberOfTokes,
+  lastTokeAt,
+}: TallyTokes): Tokes => ({
+  tokeDate: convertDateAndTime(id, lastTokeAt),
+  tokeCount: numberOfTokes,
+})
+
+export const sendBackfillTokesTransaction = async ({
+  connection,
+  sendTransaction,
+  program,
+  tallyDownPDA,
+  signerPublicKey,
+  oldTodayPuffs,
+  oldTokes,
+}: {
+  connection: Connection
+  sendTransaction: WalletAdapterProps['sendTransaction']
+  program: Program
+  tallyDownPDA: PublicKey
+  signerPublicKey: PublicKey
+  oldTodayPuffs: Tokes
+  oldTokes: Tokes[]
+}) => {
+  let signature: TransactionSignature = ''
   try {
-    return await program.methods
+    const backFillInstruction = await program.methods
       .backFillTokes(oldTokes)
       .accounts({ tokeSave: tallyDownPDA, tokeAccount: signerPublicKey })
-      .rpc({ commitment: 'confirmed' })
+      .instruction()
+
+    const setTokeCountInstruction = await program.methods
+      .setTokeCount(oldTodayPuffs.tokeCount, oldTodayPuffs.tokeDate)
+      .accounts({ tokeSave: tallyDownPDA, tokeAccount: signerPublicKey })
+      .instruction()
+
+    const latestBlockhash = await connection.getLatestBlockhash()
+
+    const transactionMessage = new TransactionMessage({
+      payerKey: signerPublicKey,
+      recentBlockhash: latestBlockhash.blockhash,
+      instructions: [backFillInstruction, setTokeCountInstruction],
+    }).compileToLegacyMessage()
+
+    const transaction = new VersionedTransaction(transactionMessage)
+
+    signature = await sendTransaction(transaction, connection)
+
+    return await connection.confirmTransaction(
+      { signature, ...latestBlockhash },
+      'confirmed',
+    )
   } catch (error) {
     console.log(error)
   }

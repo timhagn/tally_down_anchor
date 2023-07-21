@@ -27,6 +27,7 @@ import {
   sendTokeTransaction,
 } from '@/lib/tallyTokeUtils'
 import { Tokes, TokeSave } from '@/app/types/tallyDown'
+import { TallyTokes } from '@/lib/sqliteDb'
 
 interface TallyDownProgramContextProps {
   program: Program | null
@@ -34,7 +35,7 @@ interface TallyDownProgramContextProps {
   getProgramState: () => any | null
   sendToke: () => any | null
   sendResetDay: () => any | null
-  backfillTokes: (oldTokes: Tokes[]) => any | null
+  backfillTokes: (oldTodayPuffs: Tokes, oldTokes: Tokes[]) => any | null
   initialProgramState?: TokeSave
 }
 
@@ -44,7 +45,7 @@ const TallyDownProgramContextDefaultValues: TallyDownProgramContextProps = {
   getProgramState: () => {},
   sendToke: () => {},
   sendResetDay: () => {},
-  backfillTokes: (oldTokes) => {},
+  backfillTokes: (oldTodayPuffs, oldTokes) => {},
 }
 
 export const TallyDownProgramContext: Context<TallyDownProgramContextProps> =
@@ -54,7 +55,7 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
   const { connection } = useConnection()
-  const { publicKey } = useWallet()
+  const { publicKey, sendTransaction } = useWallet()
   const wallet = useAnchorWallet() as AnchorWallet
   const [program, setProgram] = useState<Program | null>(null)
   const [tallyDownPDA, setTallyDownPDA] = useState<PublicKey | null>(null)
@@ -104,14 +105,17 @@ export const TallyDownProgramProvider: FC<PropsWithChildren> = ({
   }, [getProgramState, program, publicKey, tallyDownPDA])
 
   const backfillTokes = useCallback(
-    async (oldTokes: Tokes[]) => {
+    async (oldTodayPuffs: Tokes, oldTokes: Tokes[]) => {
       if (program !== null && tallyDownPDA && publicKey) {
-        const tx = await sendBackfillTokesTransaction(
+        const tx = await sendBackfillTokesTransaction({
+          connection,
+          sendTransaction,
           program,
           tallyDownPDA,
-          publicKey,
+          signerPublicKey: publicKey,
+          oldTodayPuffs,
           oldTokes,
-        )
+        })
         if (tx) {
           return await getProgramState()
         }

@@ -28,18 +28,17 @@ export async function openDb() {
   }
 }
 
-export async function loadTodayPuffs(): Promise<Omit<TallyTokes, 'id'>> {
+export async function loadTodayPuffs(): Promise<TallyTokes> {
   const db = await openDb()
   if (db) {
     const result = await db.get(
-      "SELECT numberOfTokes, lastTokeAt FROM tally_tokes WHERE id = date('now')",
+      "SELECT * FROM tally_tokes WHERE id = date('now')",
     )
     if (result) {
-      const { numberOfTokes, lastTokeAt } = result
-      return { numberOfTokes, lastTokeAt }
+      return result
     }
   }
-  return { numberOfTokes: 0, lastTokeAt: '' }
+  return { id: '', numberOfTokes: 0, lastTokeAt: '' }
 }
 
 export interface TallyTokes {

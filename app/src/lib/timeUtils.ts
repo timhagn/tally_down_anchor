@@ -32,6 +32,9 @@ export const getUTCDateString = (tokeTime: BN) => {
 
 export const tokeTimeToDates = (tokeTime: BN[]) => tokeTime.map(tokeTimeToDate)
 
+export const convertDateAndTime = (tokeDate: string, tokeTime: string) =>
+  new BN(Date.parse(`${tokeDate} ${tokeTime}`) / 1000)
+
 export const getLastMidnightTime = () => {
   let today = new Date()
   today.setHours(0, 0, 0, 0)
