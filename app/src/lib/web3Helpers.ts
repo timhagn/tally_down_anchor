@@ -6,7 +6,7 @@ import {
   PublicKey,
 } from '@solana/web3.js'
 import { Program, AnchorProvider, Idl, utils } from '@coral-xyz/anchor'
-import idl from '../../../target/idl/tally_down.json'
+import idl from '../../target/idl/tally_down.json'
 
 const opts: ConfirmOptions = {
   preflightCommitment: 'processed',

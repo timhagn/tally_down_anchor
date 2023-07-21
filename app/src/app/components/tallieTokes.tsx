@@ -9,6 +9,7 @@ import { getUTCTimeString } from '@/lib/timeUtils'
 import { getPastNumberOfTokes, processPastTokes } from '@/lib/pastTokeUtils'
 import { useWallet } from '@solana/wallet-adapter-react'
 import Spinner from '@/app/components/spinner'
+import { processInitialProgramState } from '@/lib/tallyTokeUtils'
 
 export default function TallieTokes() {
   const { initialProgramState } = useTallyDownProgram()
@@ -19,18 +20,10 @@ export default function TallieTokes() {
     pastNumberOfTokes,
     lastTokeAt,
     pastTokesResult = [],
-  } = useMemo(() => {
-    if (initialProgramState) {
-      const pastTokesResult = processPastTokes(initialProgramState.tokes)
-      return {
-        numberOfTokes: initialProgramState.currentTokeCount,
-        pastNumberOfTokes: getPastNumberOfTokes(pastTokesResult),
-        lastTokeAt: getUTCTimeString(initialProgramState.currentTokeTime),
-        pastTokesResult,
-      }
-    }
-    return { numberOfTokes: 0, pastNumberOfTokes: 0, lastTokeAt: '' }
-  }, [initialProgramState])
+  } = useMemo(
+    () => processInitialProgramState(initialProgramState),
+    [initialProgramState],
+  )
   return (
     <div className="w-full md:w-1/2">
       {!connected ? (

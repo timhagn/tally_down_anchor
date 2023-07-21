@@ -1,7 +1,7 @@
-import { Tokes } from '@/app/providers/tallyDownProgramProvider'
+import { BN } from '@coral-xyz/anchor'
 import { getUTCDateString, getUTCTimeString } from '@/lib/timeUtils'
 import { TallyTokes } from '@/lib/sqliteDb'
-import { BN } from '@coral-xyz/anchor'
+import { Tokes } from '@/app/types/tallyDown'
 
 export const processPastTokes = (tokes: Tokes[]) =>
   tokes.map(

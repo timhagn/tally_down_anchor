@@ -59,6 +59,7 @@ pub mod tally_down {
 
         // Was the last toke before midnight?
         // Then add it to the tokes Vector & reset current_toke_time.
+        // TODO: add check for already present day, or add an extra boolean to forego the addition...
         if current_toke_time != 0 && current_toke_time < last_midnight {
             let next_toke_saved = Tokes {
                 toke_date: current_toke_time,

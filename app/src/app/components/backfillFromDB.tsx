@@ -2,13 +2,11 @@ import { TallyTokes } from '@/lib/sqliteDb'
 import PastTokes from '@/app/components/pastTokes'
 import React, { useCallback, useState } from 'react'
 import { convertOldTokes, getPastNumberOfTokes } from '@/lib/pastTokeUtils'
-import {
-  TokeSave,
-  useTallyDownProgram,
-} from '@/app/providers/tallyDownProgramProvider'
+import { useTallyDownProgram } from '@/app/providers/tallyDownProgramProvider'
 import { WhatTheSmileyThinks } from '@/app/components/whatTheSmileyThinks'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { getBalanceInWallet } from '@/lib/web3Helpers'
+import { TokeSave } from '@/app/types/tallyDown'
 
 export default function BackfillFromDB({
   pastTokesResult,

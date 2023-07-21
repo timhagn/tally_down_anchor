@@ -1,8 +1,13 @@
-import { Program } from '@coral-xyz/anchor'
+import { BN, Program } from '@coral-xyz/anchor'
 import { PublicKey } from '@solana/web3.js'
 import * as anchor from '@coral-xyz/anchor'
-import { getLastMidnightTime, tokeTimeToDate } from '@/lib/timeUtils'
-import { Tokes, TokeSave } from '@/app/providers/tallyDownProgramProvider'
+import {
+  getLastMidnightTime,
+  getUTCDateString,
+  getUTCTimeString,
+} from '@/lib/timeUtils'
+import { Tokes, TokeSave } from '@/app/types/tallyDown'
+import { getPastNumberOfTokes, processPastTokes } from '@/lib/pastTokeUtils'
 
 export const getTallyDownProgramState = async (
   program: Program,
@@ -108,4 +113,40 @@ export const sendBackfillTokesTransaction = async (
   } catch (error) {
     console.log(error)
   }
+}
+
+export const processInitialProgramState = (initialProgramState?: TokeSave) => {
+  if (initialProgramState) {
+    const { tokes, currentTokeCount, currentTokeTime } = initialProgramState
+    const pastTokesResult = processPastTokes(tokes)
+
+    const lastMidnight = getLastMidnightTime()
+    const lastTokeTime = currentTokeTime.toNumber()
+    let numberOfTokes = currentTokeCount
+    let lastTokeAt = getUTCTimeString(currentTokeTime)
+
+    // As it might be that the initial toke count wasn't from today we have to add it manually to pastTokesResult
+    // if it isn't already present there. The tallyDown Program will only update this on the next toke, so we need
+    // to do it here as well. TODO: see TODO in lib.rs...
+    if (lastTokeTime < lastMidnight) {
+      const id = getUTCDateString(currentTokeTime)
+      if (!pastTokesResult.find(({ id: pastId }) => pastId === id)) {
+        const pastToke = {
+          id,
+          numberOfTokes,
+          lastTokeAt,
+        }
+        pastTokesResult.push(pastToke)
+      }
+      numberOfTokes = 0
+      lastTokeAt = ''
+    }
+    return {
+      numberOfTokes: numberOfTokes,
+      pastNumberOfTokes: getPastNumberOfTokes(pastTokesResult),
+      lastTokeAt: lastTokeAt,
+      pastTokesResult,
+    }
+  }
+  return { numberOfTokes: 0, pastNumberOfTokes: 0, lastTokeAt: '' }
 }
